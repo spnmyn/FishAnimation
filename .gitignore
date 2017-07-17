@@ -10,3 +10,8 @@
 libs/
 src/main/res/drawable/
 src/androidTest/
+.idea/modules.xml
+.idea/runConfigurations.xml
+.idea/vcs.xml
+app/src/androidTest/
+app/src/main/res/drawable/
