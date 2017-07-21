@@ -169,7 +169,7 @@ public class FishDrawable extends Drawable {
      */
     private void makeBody(Canvas canvas, float headRadius) {
         // sin参数为弧度值
-        // 现有角度=原始角度+ sin（域值[-1，1]）*可摆动的角度   sin作用是控制周期摆动
+        // 现有角度 = 原始角度 + sin（域值[-1，1]）* 可摆动的角度。sin作用是控制周期摆动
         float angle = mainAngle + (float) Math.sin(Math.toRadians(currentValue * 1.2 * waveFrequency)) * 2;// 中心轴线加偏移量和X轴顺时针方向夹角
         headPoint = calculatePoint(middlePoint, BODY_LENGTH / 2, mainAngle);
         // 画头
