@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -17,13 +18,13 @@ import android.view.animation.LinearInterpolator;
 import java.util.Random;
 
 /**
- * Created on 2017/7/17
+ * Created on 2017/7/21
  * Author 郑少鹏
  */
 
-public class FinishDrawable extends Drawable {
-    private static final String TAG = "Fish";
-    private static final float HEAD_RADIUS = 50;
+public class FishDrawable extends Drawable {
+    private static final String TAG = "Fishes";
+    public static final float HEAD_RADIUS = 30;
     protected static final float BODY_LENGTH = HEAD_RADIUS * 3.2f; // 第一节身体长度
     private static final int BODY_ALPHA = 220;
     private static final int OTHER_ALPHA = 160;
@@ -32,9 +33,12 @@ public class FinishDrawable extends Drawable {
     private static final int FINS_RIGHT = -1;
     private static final float FINS_LENGTH = HEAD_RADIUS * 1.3f;
     public static final float TOTAL_LENGTH = 6.79f * HEAD_RADIUS;
+
     private Paint mPaint;
+    private Context mContext;
     // 控制区域
     private int currentValue = 0;// 全局控制标志
+    // private float mainAngle = new Random().nextFloat() * 360;// 角度表示的角
     private float mainAngle = 90;// 角度表示的角
     protected ObjectAnimator finsAnimator;
     private float waveFrequency = 1;
@@ -46,10 +50,8 @@ public class FinishDrawable extends Drawable {
     private Paint bodyPaint;
     private Path mPath;
 
-    /*
-    * 构造方法
-    * */
-    public FinishDrawable() {
+    public FishDrawable(Context context) {
+        this.mContext = context;
         init();
     }
 
@@ -68,6 +70,7 @@ public class FinishDrawable extends Drawable {
         bodyPaint.setStyle(Paint.Style.FILL);
         bodyPaint.setDither(true);// 防抖
         bodyPaint.setColor(Color.argb(OTHER_ALPHA + 5, 244, 92, 71));
+//        middlePoint = new PointF(TOTAL_LENGTH + BODY_LENGTH / 2, TOTAL_LENGTH + BODY_LENGTH / 2);
         middlePoint = new PointF(4.18f * HEAD_RADIUS, 4.18f * HEAD_RADIUS);
         // 鱼鳍灵动动画
         finsAnimator = ObjectAnimator.ofFloat(this, "finsAngle", 0f, 1f, 0f);
@@ -83,6 +86,7 @@ public class FinishDrawable extends Drawable {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 currentValue = (int) (animation.getAnimatedValue());
+//				mainAngle = currentValue % 360;
                 invalidateSelf();
             }
         });
@@ -94,6 +98,7 @@ public class FinishDrawable extends Drawable {
             }
         });
         valueAnimator.start();
+
     }
 
     public PointF getHeadPoint() {
@@ -154,8 +159,7 @@ public class FinishDrawable extends Drawable {
     }
 
     /**
-     * 绘制鱼身
-     * <p>
+     * 画身子
      * 主方向是头到尾的方向跟X轴正方向的夹角（顺时针为正）
      * 前进方向和主方向相差180度
      * R + 3.2R
@@ -166,7 +170,7 @@ public class FinishDrawable extends Drawable {
     private void makeBody(Canvas canvas, float headRadius) {
         // sin参数为弧度值
         // 现有角度=原始角度+ sin（域值[-1，1]）*可摆动的角度   sin作用是控制周期摆动
-        float angle = mainAngle + (float) Math.sin(Math.toRadians(currentValue * 1.2 * waveFrequency)) * 2;//中心轴线加偏移量和X轴顺时针方向夹角
+        float angle = mainAngle + (float) Math.sin(Math.toRadians(currentValue * 1.2 * waveFrequency)) * 2;// 中心轴线加偏移量和X轴顺时针方向夹角
         headPoint = calculatePoint(middlePoint, BODY_LENGTH / 2, mainAngle);
         // 画头
         canvas.drawCircle(headPoint.x, headPoint.y, HEAD_RADIUS, mPaint);
@@ -176,6 +180,7 @@ public class FinishDrawable extends Drawable {
         // 左鳍 起点
         PointF pointFinsLeft = calculatePoint(headPoint, headRadius * 0.9f, angle + 110);
         makeFins(canvas, pointFinsLeft, FINS_LEFT, angle);
+
         PointF endPoint = calculatePoint(headPoint, BODY_LENGTH, angle - 180);
         // 躯干2
         PointF mainPoint = new PointF(endPoint.x, endPoint.y);
@@ -195,8 +200,9 @@ public class FinishDrawable extends Drawable {
         mPath.lineTo(point3.x, point3.y);
         mPath.quadTo(controlRight.x, controlRight.y, point4.x, point4.y);
         mPath.lineTo(point1.x, point1.y);
+
         mPaint.setColor(Color.argb(BODY_ALPHA, 244, 92, 71));
-        // 画最大身子
+        // 画最大的身子
         canvas.drawPath(mPath, mPaint);
     }
 
@@ -210,7 +216,7 @@ public class FinishDrawable extends Drawable {
      * @param MP            梯形上边下边长度比
      */
     private void makeSegments(Canvas canvas, PointF mainPoint, float segmentRadius, float MP, float fatherAngle) {
-        float angle = fatherAngle + (float) Math.cos(Math.toRadians(currentValue * 1.5 * waveFrequency)) * 15;//中心轴线和X轴顺时针方向夹角
+        float angle = fatherAngle + (float) Math.cos(Math.toRadians(currentValue * 1.5 * waveFrequency)) * 15;// 中心轴线和X轴顺时针方向夹角
         // 身长
         float bodyLength = segmentRadius * (MP + 1);
         PointF endPoint = calculatePoint(mainPoint, bodyLength, angle - 180);
@@ -229,6 +235,7 @@ public class FinishDrawable extends Drawable {
         mPath.lineTo(point3.x, point3.y);
         mPath.lineTo(point4.x, point4.y);
         canvas.drawPath(mPath, mPaint);
+
         // 躯干2
         PointF mainPoint2 = new PointF(endPoint.x, endPoint.y);
         makeSegmentsLong(canvas, mainPoint2, segmentRadius * 0.6f, 0.4f, angle);
@@ -244,7 +251,7 @@ public class FinishDrawable extends Drawable {
      * @param MP            梯形上边下边长度比
      */
     private void makeSegmentsLong(Canvas canvas, PointF mainPoint, float segmentRadius, float MP, float fatherAngle) {
-        float angle = fatherAngle + (float) Math.sin(Math.toRadians(currentValue * 1.5 * waveFrequency)) * 35;//中心轴线和X轴顺时针方向夹角
+        float angle = fatherAngle + (float) Math.sin(Math.toRadians(currentValue * 1.5 * waveFrequency)) * 35;// 中心轴线和X轴顺时针方向夹角
         // 身长
         float bodyLength = segmentRadius * (MP + 2.7f);
         PointF endPoint = calculatePoint(mainPoint, bodyLength, angle - 180);
@@ -325,9 +332,10 @@ public class FinishDrawable extends Drawable {
         finsAngle = 45 * currentValue;
     }
 
-    public void setWaveFrequence(float waveFrequency) {
+    public void setWaveFrequency(float waveFrequency) {
         this.waveFrequency = waveFrequency;
     }
+
 
     /**
      * 输入起点、长度、旋转角度计算终点
