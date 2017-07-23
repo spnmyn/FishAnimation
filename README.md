@@ -395,6 +395,6 @@
 
 问题说明：<br>
 
-使用夜神模拟器运行，触发游动崩溃。错误如下，尚未解决。<br>
+使用夜神模拟器运行，触发游动崩溃。错误日志如下，尚未解决。<br>
 
 `java.lang.NoSuchMethodError: android.animation.ObjectAnimator.ofFloat`
